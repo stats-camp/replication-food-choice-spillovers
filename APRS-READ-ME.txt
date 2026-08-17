@@ -1,0 +1,3 @@
+The file APRS_tables.do executes all the tables and figures shown in the paper. 
+
+It uses the APRS_data.dta Stata dataset.
