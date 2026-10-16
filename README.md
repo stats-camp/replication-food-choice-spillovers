@@ -5,7 +5,7 @@ Economic Journal: Economic Policy (2019).
 
 This repository preserves the paper's official replication data and analysis
 file for [stats.camp](https://stats.camp). The original commands remain in
-place, including commands that stats.camp does not implement yet.
+place; the whole script runs and its results equal Stata's (see below).
 
 **Open in stats.camp:**
 [APRS_tables.do](https://stats.camp/app?open=https%3A%2F%2Fgithub.com%2Fstats-camp%2Freplication-food-choice-spillovers.git&file=APRS_tables.do)
@@ -29,27 +29,35 @@ by peers' choices and by observing peers' incentives.
 
 ## What runs
 
-The package was tested with the stats.camp engine on 2026-08-17. The original
-dataset loads successfully, and the setup, generated variables, Table 1
-cross-tabulation, summaries, loops, globals, logging, and
-`preserve`/`keep`/`restore` workflow execute without adapting the do-file.
+The whole unchanged script runs in stats.camp, including `xi:` with `##`
+interactions, `qui {}` blocks, the `cl()` abbreviation, `testparm`, the
+matrix construction, all 80 `lincom` calls with the authors' coefficient-name
+shorthand, the user-written `semipar` (built into the engine) and `twoway
+lpolyci`. On 2026-10-15 it was executed in Stata 19.5 (with `semipar` 1.3 from
+SSC) and in the native engine on scratch copies: all 92 `lincom` result rows
+and 33 of the 34 regressions are equal.
 
-The complete analysis does not run in stats.camp yet. The original file is
-kept unchanged so the remaining work is visible and can be implemented in the
-engine rather than rewritten in the replication package:
+Remaining differences:
 
-- Tables require `xi:`, factor-variable interactions, `matrix`/`mat`,
-  `testparm`, quiet blocks, clustered-option abbreviations, and the original
-  coefficient-name abbreviations used by `lincom`.
-- Figures 2 and 3 require the user-written `semipar` command and `twoway
-  lpolyci`, including their estimation and confidence-band behavior.
-- The original file contains 34 regressions, 80 `lincom` calls, and two
-  semiparametric figures, so placeholder implementations would not be a
-  faithful replication.
+- In the Table 3 regression the sex and race dummies are jointly collinear
+  (race and sex are both missing for the same 82 children). Stata omits
+  `_Irace_4`; the engine omits `_Irace_6`, so the printed sex and race control
+  coefficients differ while the fit and the `incentive` coefficient are the
+  same. Stata's `regress` picks the omitted variable by a pivoted sweep rather
+  than by list order.
+- `tab table_incentive_pr incentive` prints the float row values with eight
+  digits (`0.11111111`) instead of the variable's `%9.0g` (`.1111111`).
+- Factor-variable rows are laid out differently (`0b` base rows,
+  `c.table_incentive_pr#1.public` names versus Stata's nested
+  `pub#incentive | 1 1` rows); the numbers are the same.
+- Figures 2 and 3: the smoothed curves and bands have the same shape. Since
+  2026-10-15 the `clpattern()` dashes style the fitted lines (bands solid),
+  the figure keeps Stata's proportions, and the legend has Stata's two
+  columns; where the ten `ylabel(.45(.05).9)` labels would overlap, the
+  engine blanks the overlapping ones and keeps their ticks instead of
+  overprinting them as Stata does. See `aea_replication/figure_comparison.html` in the main repository.
 
-In Stata, the figure sections additionally require installation of the
-community-contributed `semipar` package. The authors did not bundle that
-package with the deposit.
+[TODO.md](TODO.md) tracks these items.
 
 ## Changes from the original package
 
